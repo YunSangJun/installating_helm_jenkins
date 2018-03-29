@@ -12,7 +12,7 @@ Master:
   Component: "jenkins-master"
   UseSecurity: true
   AdminUser: admin
-  AdminPassword: jenkins
+  AdminPassword: admin
   Cpu: "200m"
   Memory: "256Mi"
   # Set min/max heap here if needed with:
