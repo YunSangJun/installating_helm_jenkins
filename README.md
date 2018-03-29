@@ -62,3 +62,10 @@ podTemplate(label: 'jenkins-release-sj-jenkins-slave', containers: [
   }
 }
 ```
+
+# Configuration Jenkins System Properties
+
+```
+# of executors : 10
+```
+
