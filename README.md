@@ -1,3 +1,8 @@
+# Create Namespace
+```
+kubectl create ns jenkins
+```
+
 # Create PVC
 
 ```
@@ -69,3 +74,9 @@ podTemplate(label: 'jenkins-release-sj-jenkins-slave', containers: [
 # of executors : 10
 ```
 
+# Additional Clusterrolebinding
+
+To enable Jenkins to access all Namespaces, run the following command.
+```
+kubectl create -f cluster-role-binding.yaml
+```
