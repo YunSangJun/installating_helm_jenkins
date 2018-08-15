@@ -14,7 +14,7 @@ kubectl create -f jenkins-pvc.yaml
 ```
 helm install --name jenkins \
 -f values.yaml \
---set Master.AdminPassword=jenkins,Master.Cpu="1",Master.Memory="1Gi",Master.HostName="jenkins.ghama.io",Agent.Cpu="1",Agent.Memory="1Gi",Persistence.Enabled=true,Persistence.ExistingClaim="jenkins-pvc" \
+--set Master.AdminPassword=jenkins,Master.Cpu="1",Master.Memory="1Gi",Master.HostName="jenkins.example.com",Agent.Cpu="1",Agent.Memory="1Gi",Persistence.Enabled=true,Persistence.ExistingClaim="jenkins-pvc" \
 stable/jenkins
 ```
 
