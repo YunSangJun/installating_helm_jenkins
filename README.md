@@ -1,82 +1,133 @@
-# Create Namespace
+# installing_helm-jenkins
+
+## 1.Add Repo
+
+```
+$ helm repo add jenkins https://charts.jenkins.io
+
+$ helm repo update
+
+$ helm search repo jenkins
+NAME            CHART VERSION   APP VERSION     DESCRIPTION
+jenkins/jenkins 2.17.0          lts             Open source source 
+```
+
+## 2.Create Namespace
+
 ```
 kubectl create ns jenkins
 ```
 
-# Create PVC
+## 3.Install Jenkins
 
 ```
-kubectl create -f jenkins-pvc.yaml
+$ helm install \
+  -n [NAMESPACE] \
+  -f [FILE_NAME] \
+  --set [KEY]=[VALUE] \
+  [RELEASE_NAME] [CHART_NAME] \
+
+## e.g
+$ helm install \
+  -n jenkins \
+  -f values.yaml \
+  --set master.adminPassword=my-password \
+  --set master.serviceType=LoadBalancer \
+  my-jenkins jenkins/jenkins
 ```
 
-# Deploy Helm Chart
+## (Optional) 4.Deploy Clusterrolebinding(Optional) 
+To enable Jenkins to access all Namespaces, run the following command.
 
 ```
-helm install --name jenkins --namespace jenkins \
--f values.yaml \
---set Master.AdminPassword=jenkins,Master.Cpu="1",Master.Memory="1Gi",Master.HostName="jenkins.example.com",Agent.Cpu="1",Agent.Memory="1Gi",Persistence.Enabled=true,Persistence.ExistingClaim="jenkins-pvc" \
-stable/jenkins
+kubectl create -f cluster-role-binding.yaml -n jenkins
 ```
 
-# Create Jenkins Pipeline Job
+## 5.Login to Jenkins web console
 
-1. Cofigure Parameter
+1. Get your 'admin' user password by running:
 
-```
-GIT_URL=https://github.com/YunSangJun/jenkins-test.git
-GIT_BRANCH=master
-DOCKER_REGISTRY=DOCKER_REGISTRY_URL:DOCKER_REGISTRY_PORT
-DOCKER_REGISTRY_NAMESPACE=prod
-DOCKER_ID=admin
-DOCKER_PW=admin
-DOCKER_IMAGE_NAME=IMAGE_NAME
-K8S_CONF_PATH=./k8s/prd
-DOCKER_IMAGE_VERSION=1.0
-```
+    ```
+    $ printf $(kubectl get secret --namespace jenkins my-jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode);echo
+    my-password
+    ```
 
-2. Make Pipeline Script
+2. Get the Jenkins URL to visit by running these commands in the same shell:
 
-```
-podTemplate(label: 'jenkins-release-sj-jenkins-slave', containers: [
-    containerTemplate(name: 'docker', image: 'docker', ttyEnabled: true, command: 'cat'),
-    containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.8.0', command: 'cat', ttyEnabled: true)
-  ],
-  volumes: [
-    hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'),
-    persistentVolumeClaim(mountPath: '/home/jenkins/.m2', claimName: 'jenkins-pvc')
-  ]) {
-    node('jenkins-release-sj-jenkins-slave') {
-        stage('Build') {
-          git branch: env.GIT_BRANCH, url: env.GIT_URL
-          sh './mvnw clean install'
-        }
- 
-        stage('Image build') {
-          container('docker') {
-            sh 'docker build  . -t ' + env.DOCKER_REGISTRY+"/"+env.DOCKER_REGISTRY_NAMESPACE+"/"+env.DOCKER_IMAGE_NAME+":"+env.DOCKER_IMAGE_VERSION
-            sh 'docker login ' + env.DOCKER_REGISTRY + ' -u ' + env.DOCKER_ID + ' -p ' + env.DOCKER_PW
-            sh 'docker push ' + env.DOCKER_REGISTRY+"/"+env.DOCKER_REGISTRY_NAMESPACE+"/"+env.DOCKER_IMAGE_NAME+":"+env.DOCKER_IMAGE_VERSION
-          }
-        }
-         
-        stage('Deploy') {
-            container('kubectl') {
-                sh "kubectl apply -n " + env.DOCKER_REGISTRY_NAMESPACE + " -f " + env.K8S_CONF_PATH
+    NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+          You can watch the status of by running 'kubectl get svc --namespace jenkins -w my-jenkins'
+  
+    ```
+    $ export SERVICE_IP=$(kubectl get svc --namespace jenkins my-jenkins --template "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}")
+    $ echo http://$SERVICE_IP:8080/login
+    http://x.x.x.x:8080/login
+    ```
+
+3. Login with the password from step 1 and the username: admin
+
+## 6.Test
+
+1. New Item > Enter pipeline name > Select "Pipeline" > Click "OK" button
+
+2. Click "Configure" menu > Copy & Paste the following script to "Pipeline" section > Click "Save" button
+
+    NOTE: To run this pipeline "cluster-admin" role is required. Do "Deploy Clusterrolebinding" section first.
+
+    ```
+    pipeline {
+        agent {
+            kubernetes {
+                yaml '''
+                  apiVersion: v1
+                  kind: Pod
+                  spec:
+                    containers:
+                    - name: kubectl
+                      image: lachlanevenson/k8s-kubectl
+                      command:
+                      - sleep
+                      args:
+                      - infinity
+                '''
             }
         }
-  }
-}
-```
+        stages {
+            stage('Main') {
+                steps {
+                    container('kubectl') {
+                        sh '''
+                            kubectl get po --all-namespaces
+                        '''
+                    }
+                }
+            }
+        }
+    }
+    ```
 
-# Configuration Jenkins System Properties
+3. Click "Build Now" menu > Build History > Click build number(e.g: #1) > Click "Console Output" menu
+
+    You are able to see result such as the following.
+
+    ```
+    ...
+    Running on kubectl-1-8664g-4s114-z7nwk in /home/jenkins/agent/workspace/kubectl
+    ...
+    [Pipeline] sh
+    + kubectl get po --all-namespaces
+    NAMESPACE     NAME                                                        READY   STATUS    RESTARTS   AGE
+    jenkins       kubectl-1-8664g-4s114-z7nwk                                 2/2     Running   0          12s
+    jenkins       my-jenkins-557598f569-fqlnb                                 2/2     Running   0          17m
+    ...
+    [Pipeline] End of Pipeline
+    Finished: SUCCESS
+    ```
+
+## 7.Uninstall Jenkins
 
 ```
-# of executors : 10
-```
+$ helm uninstall -n [NAMESPACE] [RELEASE_NAME]
 
-# Additional Clusterrolebinding
-
-To enable Jenkins to access all Namespaces, run the following command.
-```
-kubectl create -f cluster-role-binding.yaml
+## e.g
+$ helm uninstall -n jenkins my-jenkins
 ```
