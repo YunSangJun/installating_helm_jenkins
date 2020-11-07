@@ -36,7 +36,7 @@ $ helm install \
   my-jenkins jenkins/jenkins
 ```
 
-## (Optional) 4.Deploy Clusterrolebinding(Optional) 
+## (Optional) 4.Deploy Clusterrolebinding
 To enable Jenkins to access all Namespaces, run the following command.
 
 ```
