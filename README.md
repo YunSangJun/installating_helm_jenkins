@@ -1,6 +1,6 @@
 # installing_helm-jenkins
 
-## Add Repo
+## 1.Add Repo
 
 ```
 $ helm repo add jenkins https://charts.jenkins.io
@@ -12,13 +12,13 @@ NAME            CHART VERSION   APP VERSION     DESCRIPTION
 jenkins/jenkins 2.17.0          lts             Open source source 
 ```
 
-## Create Namespace
+## 2.Create Namespace
 
 ```
 kubectl create ns jenkins
 ```
 
-## Install Jenkins
+## 3.Install Jenkins
 
 ```
 $ helm install \
@@ -36,96 +36,94 @@ $ helm install \
   my-jenkins jenkins/jenkins
 ```
 
-## (Optional) Deploy Clusterrolebinding
+## (Optional) 4.Deploy Clusterrolebinding(Optional) 
 To enable Jenkins to access all Namespaces, run the following command.
 
 ```
 kubectl create -f cluster-role-binding.yaml
 ```
 
-## Login to Jenkins web console
+## 5.Login to Jenkins web console
 
 1. Get your 'admin' user password by running:
-  printf $(kubectl get secret --namespace jenkins my-jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode);echo
 
-```
-$ printf $(kubectl get secret --namespace jenkins my-jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode);echo
-my-password
-```
+    ```
+    $ printf $(kubectl get secret --namespace jenkins my-jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode);echo
+    my-password
+    ```
 
 2. Get the Jenkins URL to visit by running these commands in the same shell:
-  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-        You can watch the status of by running 'kubectl get svc --namespace jenkins -w my-jenkins'
-  export SERVICE_IP=$(kubectl get svc --namespace jenkins my-jenkins --template "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}")
-  echo http://$SERVICE_IP:8080/login
 
-```
-$ export SERVICE_IP=$(kubectl get svc --namespace jenkins my-jenkins --template "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}")
-$ echo http://$SERVICE_IP:8080/login
-http://x.x.x.x:8080/login
-```
+    NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+          You can watch the status of by running 'kubectl get svc --namespace jenkins -w my-jenkins'
+  
+    ```
+    $ export SERVICE_IP=$(kubectl get svc --namespace jenkins my-jenkins --template "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}")
+    $ echo http://$SERVICE_IP:8080/login
+    http://x.x.x.x:8080/login
+    ```
 
 3. Login with the password from step 1 and the username: admin
 
-## Test
+## 6.Test
 
 1. New Item > Enter pipeline name > Select "Pipeline" > Click "OK" button
 
 2. Click "Configure" menu > Copy & Paste the following script to "Pipeline" section > Click "Save" button
 
-  NOTE: To run this pipeline "cluster-admin" role is required. Do "Deploy Clusterrolebinding" section first.
+    NOTE: To run this pipeline "cluster-admin" role is required. Do "Deploy Clusterrolebinding" section first.
 
-```
-pipeline {
-    agent {
-        kubernetes {
-            yaml '''
-              apiVersion: v1
-              kind: Pod
-              spec:
-                containers:
-                - name: kubectl
-                  image: lachlanevenson/k8s-kubectl
-                  command:
-                  - sleep
-                  args:
-                  - infinity
-            '''
+    ```
+    pipeline {
+        agent {
+            kubernetes {
+                yaml '''
+                  apiVersion: v1
+                  kind: Pod
+                  spec:
+                    containers:
+                    - name: kubectl
+                      image: lachlanevenson/k8s-kubectl
+                      command:
+                      - sleep
+                      args:
+                      - infinity
+                '''
+            }
         }
-    }
-    stages {
-        stage('Main') {
-            steps {
-                container('kubectl') {
-                    sh '''
-                        kubectl get po --all-namespaces
-                    '''
+        stages {
+            stage('Main') {
+                steps {
+                    container('kubectl') {
+                        sh '''
+                            kubectl get po --all-namespaces
+                        '''
+                    }
                 }
             }
         }
     }
-}
-```
+    ```
 
 3. Click "Build Now" menu > Build History > Click build number(e.g: #1) > Click "Console Output" menu
 
 You are able to see result such as the following.
 
-```
-...
-Running on kubectl-1-8664g-4s114-z7nwk in /home/jenkins/agent/workspace/kubectl
-...
-[Pipeline] sh
-+ kubectl get po --all-namespaces
-NAMESPACE     NAME                                                        READY   STATUS    RESTARTS   AGE
-jenkins       kubectl-1-8664g-4s114-z7nwk                                 2/2     Running   0          12s
-jenkins       my-jenkins-557598f569-fqlnb                                 2/2     Running   0          17m
-...
-[Pipeline] End of Pipeline
-Finished: SUCCESS
-```
+    ```
+    ...
+    Running on kubectl-1-8664g-4s114-z7nwk in /home/jenkins/agent/workspace/kubectl
+    ...
+    [Pipeline] sh
+    + kubectl get po --all-namespaces
+    NAMESPACE     NAME                                                        READY   STATUS    RESTARTS   AGE
+    jenkins       kubectl-1-8664g-4s114-z7nwk                                 2/2     Running   0          12s
+    jenkins       my-jenkins-557598f569-fqlnb                                 2/2     Running   0          17m
+    ...
+    [Pipeline] End of Pipeline
+    Finished: SUCCESS
+    ```
 
-## Uninstall Jenkins
+## 7.Uninstall Jenkins
 
 ```
 $ helm uninstall -n [NAMESPACE] [RELEASE_NAME]
