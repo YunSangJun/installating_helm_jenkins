@@ -40,7 +40,7 @@ $ helm install \
 To enable Jenkins to access all Namespaces, run the following command.
 
 ```
-kubectl create -f cluster-role-binding.yaml
+kubectl create -f cluster-role-binding.yaml -n jenkins
 ```
 
 ## 5.Login to Jenkins web console
