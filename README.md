@@ -107,7 +107,7 @@ kubectl create -f cluster-role-binding.yaml -n jenkins
 
 3. Click "Build Now" menu > Build History > Click build number(e.g: #1) > Click "Console Output" menu
 
-You are able to see result such as the following.
+    You are able to see result such as the following.
 
     ```
     ...
