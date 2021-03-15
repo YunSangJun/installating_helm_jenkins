@@ -1,4 +1,4 @@
-master:
+controller:
   numExecutors: 10
   useSecurity: true
   adminUser: "admin"
