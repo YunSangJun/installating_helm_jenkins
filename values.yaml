@@ -1,6 +1,5 @@
 controller:
   numExecutors: 10
-  useSecurity: true
   adminUser: "admin"
   # adminPassword: <defaults to random>
   resources:
