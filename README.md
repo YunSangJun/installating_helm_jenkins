@@ -31,8 +31,8 @@ $ helm install \
 $ helm install \
   -n jenkins \
   -f values.yaml \
-  --set master.adminPassword=my-password \
-  --set master.serviceType=LoadBalancer \
+  --set controller.adminPassword=my-password \
+  --set controller.serviceType=LoadBalancer \
   my-jenkins jenkins/jenkins
 ```
 
