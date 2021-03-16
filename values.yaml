@@ -27,6 +27,8 @@ controller:
     - workflow-aggregator:2.6
     - git:4.5.2
     - configuration-as-code:1.47
+    - saml:1.1.7
+    - matrix-auth:2.6.5
 
 persistence:
   enabled: true
