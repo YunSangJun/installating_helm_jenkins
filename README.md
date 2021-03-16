@@ -25,7 +25,7 @@ $ helm install \
   -n [NAMESPACE] \
   -f [FILE_NAME] \
   --set [KEY]=[VALUE] \
-  [RELEASE_NAME] [CHART_NAME] \
+  [RELEASE_NAME] [CHART_NAME] --version [CHART_VERSION]
 
 ## e.g
 $ helm install \
@@ -34,7 +34,7 @@ $ helm install \
   --set controller.adminPassword=my-password \
   --set controller.serviceType=LoadBalancer \
   --set controller.JCasC.defaultConfig=false \
-  my-jenkins jenkins/jenkins
+  my-jenkins jenkins/jenkins --version 3.2.3
 ```
 
 ## (Optional) 4.Deploy Clusterrolebinding
