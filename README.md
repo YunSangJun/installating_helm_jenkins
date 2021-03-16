@@ -33,6 +33,7 @@ $ helm install \
   -f values.yaml \
   --set controller.adminPassword=my-password \
   --set controller.serviceType=LoadBalancer \
+  --set controller.JCasC.defaultConfig=false \
   my-jenkins jenkins/jenkins
 ```
 
