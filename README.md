@@ -9,7 +9,7 @@ $ helm repo update
 
 $ helm search repo jenkins
 NAME            CHART VERSION   APP VERSION     DESCRIPTION
-jenkins/jenkins 2.17.0          lts             Open source source 
+jenkins/jenkins 3.2.3           lts             Open source source 
 ```
 
 ## 2.Create Namespace
