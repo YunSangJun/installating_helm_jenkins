@@ -79,7 +79,7 @@ kubectl create -f cluster-role-binding.yaml -n jenkins
     http://x.x.x.x:8080/login
 
     ## e.g. Using Ingress
-    $ printf $(kubectl get ing --namespace jenkins my-jenkins -o jsonpath="{.spec.hostName}");echo
+    $ printf $(kubectl get ing --namespace jenkins my-jenkins -o jsonpath="{.spec.rules[0].host}");echo
     jenkins.example.com
     ```
 
