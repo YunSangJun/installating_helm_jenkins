@@ -5,14 +5,14 @@ Single Sing-On guide for Harbor
 
 1. Keycloak web console > Login as admin > Select realm > Configure > Clients > Create
 
-2. Add client > Save
+2. Configure client options as the following > Save
 
     - Client ID: harbor
     - Client Protocol: openid-connect
 
     ![Add client](./img/keycloak_01.PNG)
 
-3. Configure client options > Save
+3. Configure client options as the following > Save
 
     - Access Type: confidential
     - Valid Redirect URIs: [Harbor URL]/c/oidc/callback
@@ -29,7 +29,7 @@ Single Sing-On guide for Harbor
 
 1. Harbor web console > Login as admin > Administrator > Configuration > Authentication tab
 
-2. Configure authentication options > TEST OIDC SERVER > Save
+2. Configure authentication options as the following > Click "TEST OIDC SERVER" > Save
 
     - OIDC Provider Name: keycloak
     - OIDC Endpoint: [Keycloak URL]/auth/realms/[Realm name]
@@ -39,7 +39,7 @@ Single Sing-On guide for Harbor
 
     ![Configure authentication options](./img/harbor_01.PNG)
 
-3. System Settings tab > Configure system settings > Save
+3. System Settings tab > Configure system settings as the following > Save
 
     - Project Creation: Admin Only
 
