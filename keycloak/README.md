@@ -45,6 +45,7 @@ $ kubectl create secret tls example-tls -n keycloak \
 $ helm install \
   -n keycloak \
   -f values.yaml \
+  --set ingress.enabled=true \
   --set ingress.rules[0].host=keycloak.example.com \
   --set ingress.tls[0].hosts[0]=example.com \
   --set ingress.tls[0].secretName=example-tls \
@@ -71,7 +72,7 @@ $ helm install \
     https://x.x.x.x:8443
 
     ## e.g. Using Ingress
-    $ printf $(kubectl get ing --namespace keycloak nuclear-keycloak -o jsonpath="{.spec.rules[0].host}");echo
+    $ printf $(kubectl get ing --namespace keycloak my-keycloak -o jsonpath="{.spec.rules[0].host}");echo
     keycloak.example.com
     ```
 

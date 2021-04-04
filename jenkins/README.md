@@ -27,12 +27,27 @@ $ helm install \
   --set [KEY]=[VALUE] \
   [RELEASE_NAME] [CHART_NAME] --version [CHART_VERSION]
 
-## e.g
+## e.g. Using LoadBalancer
 $ helm install \
   -n jenkins \
   -f values.yaml \
   --set controller.adminPassword=my-password \
   --set controller.serviceType=LoadBalancer \
+  my-jenkins jenkins/jenkins --version 3.2.3
+
+## e.g. Using Ingress
+$ kubectl create secret tls example-tls -n jenkins \
+--cert /PATH/TO/CERT.crt \
+--key /PATH/TO/CERT.key
+
+$ helm install \
+  -n jenkins \
+  -f values.yaml \
+  --set ingress.enabled=true \
+  --set ingress.hostName=jenkins.example.com \
+  --set ingress.tls[0].hosts[0]=example.com \
+  --set ingress.tls[0].secretName=example-tls \
+  --set controller.adminPassword=my-password \
   my-jenkins jenkins/jenkins --version 3.2.3
 ```
 
@@ -58,9 +73,14 @@ kubectl create -f cluster-role-binding.yaml -n jenkins
           You can watch the status of by running 'kubectl get svc --namespace jenkins -w my-jenkins'
   
     ```
+    ## e.g. Using LoadBalancer
     $ export SERVICE_IP=$(kubectl get svc --namespace jenkins my-jenkins --template "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}")
     $ echo http://$SERVICE_IP:8080/login
     http://x.x.x.x:8080/login
+
+    ## e.g. Using Ingress
+    $ printf $(kubectl get ing --namespace jenkins my-jenkins -o jsonpath="{.spec.hostName}");echo
+    jenkins.example.com
     ```
 
 3. Login with the password from step 1 and the username: admin
