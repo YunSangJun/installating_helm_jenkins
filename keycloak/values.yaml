@@ -1,0 +1,71 @@
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1024Mi"
+  limits:
+    cpu: "500m"
+    memory: "1024Mi"  
+
+service:
+  type: ClusterIP 
+
+ingress:
+  enabled: false
+  servicePort: https
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+  rules:
+    - host: '{{ .Release.Name }}.keycloak.example.com'
+      paths:
+        - /
+  tls:
+    - hosts:
+        - example.com
+      secretName: ""
+
+postgresql:
+  enabled: true
+  postgresqlUsername: keycloak
+  postgresqlDatabase: keycloak
+  persistence:
+    #storageClass: "-"
+    accessModes:
+      - ReadWriteOnce
+    size: 20Gi
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 2Gi
+      cpu: 1 
+
+# extraEnv: |
+#   - name: DB_VENDOR
+#     value: postgres
+#   - name: DB_ADDR
+#     value: mypostgres
+#   - name: DB_PORT
+#     value: "5432"
+#   - name: DB_DATABASE
+#     value: keycloak 
+
+extraEnvFrom: |
+  - secretRef:
+      name: '{{ include "keycloak.fullname" . }}-admin'
+      
+# extraEnvFrom: |
+#   - secretRef:
+#       name: '{{ include "keycloak.fullname" . }}-db'
+#   - secretRef:
+#       name: '{{ include "keycloak.fullname" . }}-admin'
+
+secrets:
+#   db:
+#     stringData:
+#       DB_USER: keycloak
+#       DB_PASSWORD: '{{ .Values.dbPassword }}'
+  admin:
+    stringData:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: '{{ .Values.adminPassword }}'
