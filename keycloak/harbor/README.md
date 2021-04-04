@@ -27,7 +27,7 @@ Single Sing-On guide for Harbor
 
 ## Configure authentication 
 
-1. Harbor web console > Login as admin > Administrator > Configuration > Authentication
+1. Harbor web console > Login as admin > Administrator > Configuration > Authentication tab
 
 2. Configure authentication options > TEST OIDC SERVER > Save
 
@@ -37,5 +37,14 @@ Single Sing-On guide for Harbor
     - OIDC Client Secret: [Client Secret]
     - OIDC Scope: openid,offline_access
 
-    ![Create client](./img/harbor_01.PNG)
+    ![Configure authentication options](./img/harbor_01.PNG)
 
+3. System Settings tab > Configure system settings > Save
+
+    - Project Creation: Admin Only
+
+    ![Configure system settings](./img/harbor_02.PNG)
+
+4. Logout > Click "Login VIA OIDC PROVIDER" 
+
+    ![Login via OIDC](./img/harbor_03.PNG)
